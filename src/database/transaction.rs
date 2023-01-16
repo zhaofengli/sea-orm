@@ -417,14 +417,16 @@ impl ConnectionTrait for DatabaseTransaction {
     }
 }
 
-impl StreamTrait for DatabaseTransaction {
-    type Stream<'a> = TransactionStream<'a>;
+#[async_trait::async_trait]
+#[allow(unused_variables)]
+impl<'a> StreamTrait<'a> for DatabaseTransaction {
+    type Stream = TransactionStream<'a>;
 
     #[instrument(level = "trace")]
-    fn stream<'a>(
+    fn stream(
         &'a self,
         stmt: Statement,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Stream<'a>, DbErr>> + 'a + Send>> {
+    ) -> Pin<Box<dyn Future<Output = Result<Self::Stream, DbErr>> + 'a + Send>> {
         Box::pin(async move {
             let conn = self.conn.lock().await;
             Ok(crate::TransactionStream::build(

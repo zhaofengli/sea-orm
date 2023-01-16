@@ -165,15 +165,15 @@ impl ConnectionTrait for DatabaseConnection {
 }
 
 #[async_trait::async_trait]
-impl StreamTrait for DatabaseConnection {
-    type Stream<'a> = crate::QueryStream;
+impl<'a> StreamTrait<'a> for DatabaseConnection {
+    type Stream = crate::QueryStream;
 
     #[instrument(level = "trace")]
     #[allow(unused_variables, unreachable_code)]
-    fn stream<'a>(
+    fn stream(
         &'a self,
         stmt: Statement,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Stream<'a>, DbErr>> + 'a + Send>> {
+    ) -> Pin<Box<dyn Future<Output = Result<Self::Stream, DbErr>> + 'a + Send>> {
         Box::pin(async move {
             Ok(match self {
                 #[cfg(feature = "sqlx-mysql")]

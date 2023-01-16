@@ -34,17 +34,15 @@ pub trait ConnectionTrait: Sync {
 }
 
 /// Stream query results
-pub trait StreamTrait: Send + Sync {
+pub trait StreamTrait<'a>: Send + Sync {
     /// Create a stream for the [QueryResult]
-    type Stream<'a>: Stream<Item = Result<QueryResult, DbErr>> + Send
-    where
-        Self: 'a;
+    type Stream: Stream<Item = Result<QueryResult, DbErr>> + Send;
 
     /// Execute a [Statement] and return a stream of results
-    fn stream<'a>(
+    fn stream(
         &'a self,
         stmt: Statement,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Stream<'a>, DbErr>> + 'a + Send>>;
+    ) -> Pin<Box<dyn Future<Output = Result<Self::Stream, DbErr>> + 'a + Send>>;
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
